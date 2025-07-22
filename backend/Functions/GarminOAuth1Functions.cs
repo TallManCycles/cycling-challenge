@@ -144,11 +144,19 @@ public class GarminOAuth1Functions
 
             var tempUserId = registrationData.GetProperty("tempUserId").GetString();
             var name = registrationData.GetProperty("name").GetString();
+            
+            if (string.IsNullOrEmpty(tempUserId) || string.IsNullOrEmpty(name))
+            {
+                var badRequestResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await badRequestResponse.WriteStringAsync("Missing required fields: tempUserId and name");
+                return badRequestResponse;
+            }
+            
             var email = registrationData.TryGetProperty("email", out var emailElement) 
                 ? emailElement.GetString() ?? $"{name.Replace(" ", "").ToLower()}@user.local"
                 : $"{name.Replace(" ", "").ToLower()}@user.local";
 
-            if (string.IsNullOrEmpty(tempUserId) || !_tempUserTokens.TryGetValue(tempUserId, out var tokenInfo))
+            if (!_tempUserTokens.TryGetValue(tempUserId, out var tokenInfo))
             {
                 var notFoundResponse = req.CreateResponse(HttpStatusCode.BadRequest);
                 await notFoundResponse.WriteStringAsync("Invalid or expired registration token");
