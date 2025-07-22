@@ -54,6 +54,7 @@ frontend/dist-ssr/
 
 # Logs
 logs/
+backend/logs/
 *.log
 
 # Azure

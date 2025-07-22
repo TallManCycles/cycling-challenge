@@ -42,56 +42,46 @@ const userName = ref('')
 
 const handleCallback = async () => {
   try {
-    const code = route.query.code as string
-    const state = route.query.state as string
+    // Check if this is OAuth 1.0 success callback
+    const successParam = route.query.success as string
+    const errorParam = route.query.error as string
     
-    if (!code || !state) {
-      throw new Error('Missing authorization code or state')
-    }
-    
-    const authState = localStorage.getItem('garminAuthState')
-    if (!authState) {
-      throw new Error('No authentication state found')
-    }
-    
-    const { codeVerifier, state: expectedState } = JSON.parse(authState)
-    
-    if (state !== expectedState) {
-      throw new Error('Invalid state parameter')
-    }
-    
-    // Get user info for the callback
-    const name = prompt('Please enter your name:') || 'User'
-    const email = prompt('Please enter your email:') || 'user@example.com'
-    
-    const result = await authApi.handleCallback({
-      code,
-      state,
-      codeVerifier,
-      name,
-      email
-    })
-    
-    if (result.success) {
+    if (successParam === 'true') {
+      // OAuth 1.0 success flow - user data already provided by backend
+      const name = route.query.name as string || 'User'
+      const userId = route.query.userId as string
+      
+      if (!userId) {
+        throw new Error('Missing user ID from authentication')
+      }
+      
       // Store user info
       localStorage.setItem('cyclingChallengeUser', JSON.stringify({
-        id: result.userId,
-        name: result.name,
-        email: result.email
+        id: userId,
+        name: decodeURIComponent(name),
+        email: 'user@example.com' // Default email for OAuth 1.0
       }))
       
+      // Clean up OAuth state
       localStorage.removeItem('garminAuthState')
       
-      userName.value = result.name
+      userName.value = decodeURIComponent(name)
       success.value = true
       
       // Redirect to dashboard after a short delay
       setTimeout(() => {
         router.push('/')
       }, 2000)
-    } else {
-      throw new Error('Authentication failed')
+      
+      return
     }
+    
+    if (errorParam) {
+      throw new Error(`Authentication failed: ${errorParam}`)
+    }
+    
+    // If no success or error parameters, this is not a valid OAuth 1.0 callback
+    throw new Error('Invalid callback - no OAuth 1.0 parameters found')
     
   } catch (err) {
     console.error('Authentication error:', err)

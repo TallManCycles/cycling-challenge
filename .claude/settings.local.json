@@ -7,7 +7,14 @@
       "Bash(dotnet build)",
       "Bash(npm install:*)",
       "Bash(npm run build:*)",
-      "Bash(dotnet test)"
+      "Bash(dotnet test)",
+      "Bash(func start --port 7071)",
+      "Bash(find:*)",
+      "Bash(curl:*)",
+      "Bash(dotnet ef database:*)",
+      "Bash(taskkill:*)",
+      "Bash(dotnet build:*)",
+      "Bash(func start:*)"
     ],
     "deny": []
   }

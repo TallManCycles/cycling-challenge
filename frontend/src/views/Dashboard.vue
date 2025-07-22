@@ -92,9 +92,9 @@ const startAuth = async () => {
   try {
     const authData = await authApi.startGarminAuth()
     
+    // OAuth 1.0 - no need to store codeVerifier or state
     localStorage.setItem('garminAuthState', JSON.stringify({
-      codeVerifier: authData.codeVerifier,
-      state: authData.state
+      requestToken: authData.requestToken
     }))
     
     window.location.href = authData.authUrl

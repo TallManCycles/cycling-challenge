@@ -99,7 +99,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-defineEmits<{
+const emit = defineEmits<{
   created: []
   cancel: []
 }>()
@@ -144,8 +144,8 @@ const createChallenge = async () => {
   submitting.value = true
   
   try {
-    // In a real app, you'd look up the opponent by email
-    // For this demo, we'll assume opponent ID is 2 if current user is 1, or vice versa
+    // For demo: create challenge for any other user ID (will be waiting for opponent)
+    // Use a different ID than the current user
     const opponentId = props.currentUser.id === 1 ? 2 : 1
     
     await challengeApi.createChallenge({
@@ -165,8 +165,9 @@ const createChallenge = async () => {
     }
 
     alert('Challenge created successfully!')
-    // Emit created event to parent
-    // (In a real app, you'd handle this more elegantly)
+    
+    // Emit created event to close modal
+    emit('created')
     
   } catch (error) {
     console.error('Failed to create challenge:', error)

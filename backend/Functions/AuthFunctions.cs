@@ -23,8 +23,8 @@ public class AuthFunctions
         _context = context;
     }
 
-    [Function("StartGarminAuth")]
-    public async Task<HttpResponseData> StartGarminAuth([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "auth/garmin/start")] HttpRequestData req)
+    [Function("StartGarminAuthOAuth2_DISABLED")]
+    public async Task<HttpResponseData> StartGarminAuth([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "auth/garmin/start-oauth2")] HttpRequestData req)
     {
         _logger.LogInformation("Starting Garmin OAuth flow");
 
@@ -55,8 +55,8 @@ public class AuthFunctions
         }
     }
 
-    [Function("GarminAuthCallback")]
-    public async Task<HttpResponseData> GarminAuthCallback([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "auth/garmin/callback")] HttpRequestData req)
+    [Function("GarminAuthCallbackOAuth2_DISABLED")]
+    public async Task<HttpResponseData> GarminAuthCallback([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "auth/garmin/callback-oauth2")] HttpRequestData req)
     {
         _logger.LogInformation("Processing Garmin OAuth callback");
 

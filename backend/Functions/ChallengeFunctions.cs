@@ -7,6 +7,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using CyclingChallenge.Services;
 using CyclingChallenge.Models;
+using static CyclingChallenge.Models.ChallengeStatus;
 
 namespace CyclingChallenge.Functions;
 
@@ -31,8 +32,12 @@ public class ChallengeFunctions
             var requestBody = await req.ReadAsStringAsync();
             var challengeData = JsonSerializer.Deserialize<JsonElement>(requestBody ?? "{}");
 
-            var creatorId = challengeData.GetProperty("creatorId").GetInt32();
-            var opponentId = challengeData.GetProperty("opponentId").GetInt32();
+            var creatorId = challengeData.GetProperty("creatorId").ValueKind == JsonValueKind.String 
+                ? int.Parse(challengeData.GetProperty("creatorId").GetString()!) 
+                : challengeData.GetProperty("creatorId").GetInt32();
+            var opponentId = challengeData.GetProperty("opponentId").ValueKind == JsonValueKind.String 
+                ? int.Parse(challengeData.GetProperty("opponentId").GetString()!) 
+                : challengeData.GetProperty("opponentId").GetInt32();
             var name = challengeData.GetProperty("name").GetString();
             var typeString = challengeData.GetProperty("type").GetString();
             
@@ -69,7 +74,9 @@ public class ChallengeFunctions
                 startDate = challenge.StartDate,
                 endDate = challenge.EndDate,
                 creator = new { id = challenge.Creator.Id, name = challenge.Creator.Name },
-                opponent = new { id = challenge.Opponent.Id, name = challenge.Opponent.Name },
+                opponent = challenge.Status == ChallengeStatus.WaitingForOpponent 
+                    ? new { id = challenge.OpponentId, name = "Waiting for user..." }
+                    : new { id = challenge.Opponent.Id, name = challenge.Opponent.Name },
                 createdAt = challenge.CreatedAt
             });
 
@@ -166,7 +173,9 @@ public class ChallengeFunctions
                 startDate = c.StartDate,
                 endDate = c.EndDate,
                 creator = new { id = c.Creator.Id, name = c.Creator.Name },
-                opponent = new { id = c.Opponent.Id, name = c.Opponent.Name },
+                opponent = c.Status == ChallengeStatus.WaitingForOpponent 
+                    ? new { id = c.OpponentId, name = "Waiting for user..." }
+                    : new { id = c.Opponent.Id, name = c.Opponent.Name },
                 createdAt = c.CreatedAt
             }));
 

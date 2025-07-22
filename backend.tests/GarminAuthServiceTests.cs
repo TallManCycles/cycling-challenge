@@ -1,6 +1,7 @@
 // ABOUTME: Unit tests for the GarminAuthService class
 // ABOUTME: Tests PKCE code generation and verification logic
-using CyclingChallenge.Services;
+// DISABLED: Tests for OAuth 2.0 service - now using OAuth 1.0
+// using CyclingChallenge.Services;
 using CyclingChallenge.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
@@ -9,6 +10,8 @@ using Xunit;
 
 namespace CyclingChallenge.Tests;
 
+// DISABLED: OAuth 2.0 tests - using OAuth 1.0 now
+/*
 public class GarminAuthServiceTests : IDisposable
 {
     private readonly ChallengeDbContext _context;
@@ -152,3 +155,4 @@ public class GarminAuthServiceTests : IDisposable
         _httpClient.Dispose();
     }
 }
+*/

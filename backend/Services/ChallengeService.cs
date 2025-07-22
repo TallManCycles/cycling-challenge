@@ -17,6 +17,14 @@ public class ChallengeService
 
     public async Task<Challenge> CreateChallengeAsync(int creatorId, int opponentId, string name, ChallengeType type, double? targetValue = null)
     {
+        // Check if creator exists
+        var creator = await _context.Users.FindAsync(creatorId);
+        if (creator == null)
+            throw new InvalidOperationException("Creator user not found");
+
+        // Check if opponent exists
+        var opponent = await _context.Users.FindAsync(opponentId);
+        
         var startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var endDate = startDate.AddMonths(1).AddSeconds(-1);
 
@@ -29,7 +37,7 @@ public class ChallengeService
             EndDate = endDate,
             CreatorId = creatorId,
             OpponentId = opponentId,
-            Status = ChallengeStatus.Pending
+            Status = opponent == null ? ChallengeStatus.WaitingForOpponent : ChallengeStatus.Pending
         };
 
         _context.Challenges.Add(challenge);
@@ -74,11 +82,18 @@ public class ChallengeService
     {
         var challenge = await _context.Challenges
             .Include(c => c.Creator)
-            .Include(c => c.Opponent)
             .FirstOrDefaultAsync(c => c.Id == challengeId);
 
         if (challenge == null)
             throw new InvalidOperationException("Challenge not found");
+
+        // Only try to include opponent if they exist
+        if (challenge.Status != ChallengeStatus.WaitingForOpponent)
+        {
+            await _context.Entry(challenge)
+                .Reference(c => c.Opponent)
+                .LoadAsync();
+        }
 
         return challenge;
     }
@@ -151,6 +166,23 @@ public class ChallengeService
         }
 
         if (expiredChallenges.Any())
+        {
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task ActivateWaitingChallengesForUserAsync(int userId)
+    {
+        var waitingChallenges = await _context.Challenges
+            .Where(c => c.OpponentId == userId && c.Status == ChallengeStatus.WaitingForOpponent)
+            .ToListAsync();
+
+        foreach (var challenge in waitingChallenges)
+        {
+            challenge.Status = ChallengeStatus.Pending;
+        }
+
+        if (waitingChallenges.Any())
         {
             await _context.SaveChangesAsync();
         }

@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { authApi } from './services/api'
 import type { User } from './types'
 
@@ -50,9 +50,9 @@ const startAuth = async () => {
   try {
     const authData = await authApi.startGarminAuth()
     
+    // OAuth 1.0 - no need to store codeVerifier or state
     localStorage.setItem('garminAuthState', JSON.stringify({
-      codeVerifier: authData.codeVerifier,
-      state: authData.state
+      requestToken: authData.requestToken
     }))
     
     window.location.href = authData.authUrl
@@ -64,6 +64,13 @@ const startAuth = async () => {
 
 onMounted(() => {
   loadUser()
+  
+  // Listen for user login events from other components
+  window.addEventListener('userLogin', loadUser)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('userLogin', loadUser)
 })
 </script>
 

@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Dashboard from '../views/Dashboard.vue'
 import ChallengeDetails from '../views/ChallengeDetails.vue'
 import AuthCallback from '../views/AuthCallback.vue'
+import NameEntry from '../views/NameEntry.vue'
 import Settings from '../views/Settings.vue'
 
 const router = createRouter({
@@ -24,6 +25,11 @@ const router = createRouter({
       path: '/auth/callback',
       name: 'AuthCallback',
       component: AuthCallback
+    },
+    {
+      path: '/auth/name-entry',
+      name: 'NameEntry',
+      component: NameEntry
     },
     {
       path: '/settings',

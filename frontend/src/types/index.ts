@@ -53,8 +53,7 @@ export interface ChallengeProgress {
 
 export interface AuthResponse {
   authUrl: string
-  codeVerifier: string
-  state: string
+  requestToken: string
 }
 
 export interface CallbackData {

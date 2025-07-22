@@ -50,17 +50,16 @@ public class GarminAuthService
     {
         var queryParams = new Dictionary<string, string>
         {
-            ["response_type"] = "code",
             ["client_id"] = _clientId,
+            ["response_type"] = "code",
+            ["state"] = state,
             ["redirect_uri"] = _redirectUri,
-            ["scope"] = "activity:read",
             ["code_challenge"] = codeChallenge,
-            ["code_challenge_method"] = "S256",
-            ["state"] = state
+            ["code_challenge_method"] = "S256"
         };
 
         var query = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
-        return $"https://connect.garmin.com/oauth2/authorize?{query}";
+        return $"https://connect.garmin.com/oauth2Confirm?{query}";
     }
 
     public async Task<(string AccessToken, string RefreshToken, DateTime Expiry)> ExchangeCodeForTokensAsync(string code, string codeVerifier)

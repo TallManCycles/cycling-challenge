@@ -13,7 +13,8 @@ public enum ChallengeType
 
 public enum ChallengeStatus
 {
-    Pending,
+    WaitingForOpponent, // Opponent user doesn't exist yet
+    Pending,            // Opponent exists, waiting for acceptance
     Active,
     Completed,
     Cancelled

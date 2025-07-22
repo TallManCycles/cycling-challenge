@@ -41,6 +41,10 @@ jobs:
         run: dotnet build --configuration Release
         working-directory: ./backend
 
+      - name: Publish Functions
+        run: dotnet publish --configuration Release --output ./bin/Release/net8.0/publish
+        working-directory: ./backend
+
       - name: Build And Deploy Frontend
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -50,12 +54,13 @@ jobs:
           action: "upload"
           app_location: "./frontend"
           output_location: "dist"
+          api_location: "" # No API location needed
 
       - name: Deploy Backend to Azure Functions
         uses: Azure/functions-action@v1
         with:
           app-name: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
-          package: './backend'
+          package: './backend/bin/Release/net8.0/publish'
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
 
   close_pull_request_job:
